@@ -1,6 +1,8 @@
 import React from 'react'
 import Context from '../Context'
 import { UserForm } from '../components/UserForm'
+import { RegisterMutation } from '../container/RegisterMutation'
+import { LoginMutation } from '../container/LoginMutation'
 
 export const NotRegisteredUser = () => (
     <Context.Consumer>
@@ -8,8 +10,37 @@ export const NotRegisteredUser = () => (
             ({ isAuth, activateAuth }) => {
                 return 
                     <>
-                        <UserForm title='Registrarse' onSubmit={activateAuth} />
-                        <UserForm title='Iniciar Sesion' onSubmit={activateAuth} />
+                        <RegisterMutation>
+                            {
+                                (register, { data, loading, error }) => {
+                                    const onSubmit = ({ email, password}) => {
+                                        const input = { email, password }
+                                        const variables = { input }
+                                        register({ variables }).then(activateAuth)
+                                    }
+
+                                    const errorMsg = error && 'El usuario ya existe o hay algun problema.'
+
+                                    return <UserForm disabled={loading} error={errorMsg} title='Registrar' onSubmit={onSubmit} />
+                                }
+                            }
+                        </RegisterMutation>
+
+                        <LoginMutation>
+                            {
+                                (login, { data, loading, error}) => {
+                                    const onSubmit = ({ email, password}) => {
+                                        const input = { email, password }
+                                        const variables = { input }
+                                        login({ variables }).then(activateAuth)
+                                    }
+
+                                    const errorMsg = error && 'La contraseña no es correcta o el usuario no existe.'
+
+                                    return <UserForm disabled={loading} error={errorMsg} title='Iniciar Sesion' onSubmit={activateAuth} />
+                                }
+                            }
+                        </LoginMutation>
                     </>
             }
         }
